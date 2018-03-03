@@ -84,8 +84,8 @@ function moveBody()
 end
 
 function checkpointInBox(x,y,a)
-  if (y <= a.y + a.h and y >= a.y) then
-    if (x <= a.x + a.w and x >= a.x) then
+  if (y < a.y + a.h and y >= a.y) then
+    if (x < a.x + a.w and x >= a.x) then
       return true
     end
   end
