@@ -5,6 +5,7 @@ __lua__
 -- add globals here
 constants = {}
 constants.speed = 3
+constants.maxDistanceFromBody = 24
 
 body = {}
 body.x = 50
@@ -13,22 +14,26 @@ body.sprite = 1
 -- arm is current arm
 -- todo: add array of previous arms later
 arm = {}
-arm.x = body.x - 10
-arm.y = body.y
+arm.x = -10
+arm.y = 0
 arm.sprite = 3
 
 function moveCheck()
   if btn(0) then
     arm.x -= constants.speed
+    arm.x = (abs(arm.x) <= constants.maxDistanceFromBody) and arm.x or -constants.maxDistanceFromBody
   end
   if btn(1) then
     arm.x += constants.speed
+    arm.x = (arm.x <= constants.maxDistanceFromBody) and arm.x or constants.maxDistanceFromBody
   end
   if btn(2) then
     arm.y -= constants.speed
+    arm.y = (abs(arm.y) <= constants.maxDistanceFromBody) and arm.y or -constants.maxDistanceFromBody
   end
   if btn(3) then
     arm.y += constants.speed
+    arm.y = (arm.y <= constants.maxDistanceFromBody) and arm.y or constants.maxDistanceFromBody
   end
 end
 
@@ -52,7 +57,7 @@ end
 function _draw()
     cls()
     spr(body.sprite, body.x, body.y)
-    spr(arm.sprite, arm.x, arm.y)
+    spr(arm.sprite, body.x+arm.x, body.y+arm.y)
 end
 
 __gfx__
