@@ -7,9 +7,18 @@ constants = {}
 constants.speed = 3
 constants.maxDistanceFromBody = 24
 
+goal = {}
+goal.x = 10
+goal.y = 50
+goal.w = 8
+goal.h = 8
+goal.sprite = 1
+
 body = {}
 body.x = 50
 body.y = 50
+body.w = 8
+body.h = 8
 body.sprite = 1
 -- arm is current arm
 -- todo: add array of previous arms later
@@ -37,8 +46,26 @@ function moveCheck()
   end
 end
 
+function checkpointInBox(x,y,a)
+  if (y <= a.y + a.h and y >= a.y) then
+    if (x <= a.x + a.w and x >= a.x) then
+      return true
+    end
+  end
+  return false
+end
+
+function checkCollide(a,b)
+  if checkpointInBox(a.x,a.y,b) then return true end
+  if checkpointInBox(a.x+a.w,a.y,b) then return true end
+  if checkpointInBox(a.x,a.y+a.h,b) then return true end
+  if checkpointInBox(a.x+a.w,a.y+a.h,b) then return true end
+  return false
+end
+
 function goalCheck()
   -- todo
+  if checkCollide(body,goal) then WIN=true end
 end
 
 function animateBody()
@@ -56,6 +83,8 @@ end
 
 function _draw()
     cls()
+    if WIN then print("WIN") end
+    spr(goal.sprite, goal.x, goal.y)
     spr(body.sprite, body.x, body.y)
     spr(arm.sprite, body.x+arm.x, body.y+arm.y)
 end
