@@ -7,6 +7,8 @@ constants = {}
 constants.armSpeed = 3
 constants.bodySpeed = 2
 constants.maxDistanceFromBody = 24
+constants.minDistanceFromBody = 6
+constants.windowSize = 128
 
 goal = {}
 goal.x = 10
@@ -53,6 +55,11 @@ function moveArmX(thisArm, x)
   elseif (thisArm.x < -constants.maxDistanceFromBody) then
     thisArm.x = -constants.maxDistanceFromBody
   end
+  if ((thisArm.x + body.x) > constants.windowSize) then
+    thisArm.x = constants.windowSize - body.x
+  elseif ((thisArm.x + body.x) < 0) then
+    thisArm.x = -constants.minDistanceFromBody
+  end
 end
 
 function moveArmY(thisArm, y)
@@ -62,24 +69,40 @@ function moveArmY(thisArm, y)
   elseif (thisArm.y < -constants.maxDistanceFromBody) then
     thisArm.y = -constants.maxDistanceFromBody
   end
+  if ((thisArm.y + body.y) > constants.windowSize) then
+    thisArm.y = constants.windowSize - body.y
+  elseif ((thisArm.y + body.y) < 0) then
+    thisArm.y = -constants.minDistanceFromBody
+  end
 end
 
 function moveBody()
   local totalX = arm.x
   local totalY = arm.y
-  if (totalX > 0) then
+  if (totalX > constants.minDistanceFromBody) then
     body.x += constants.bodySpeed
     moveArmX(arm, -constants.bodySpeed)
-  elseif (totalX < 0) then
+  elseif (totalX < -constants.minDistanceFromBody) then
     body.x -= constants.bodySpeed
     moveArmX(arm, constants.bodySpeed)
   end
-  if (totalY > 0) then
+  if (totalY > constants.minDistanceFromBody) then
     body.y += constants.bodySpeed
     moveArmY(arm, -constants.bodySpeed)
-  elseif (totalY < 0) then
+  elseif (totalY < -constants.minDistanceFromBody) then
     body.y -= constants.bodySpeed
     moveArmY(arm, constants.bodySpeed)
+  end
+  -- check for OOB
+  if (body.x > (constants.windowSize - constants.minDistanceFromBody)) then
+    body.x = constants.windowSize - constants.minDistanceFromBody
+  elseif (body.x < constants.minDistanceFromBody) then
+    body.x = constants.minDistanceFromBody
+  end
+  if (body.y > (constants.windowSize - constants.minDistanceFromBody)) then
+    body.y = constants.windowSize - constants.minDistanceFromBody
+  elseif (body.y < constants.minDistanceFromBody) then
+    body.y = constants.minDistanceFromBody
   end
 end
 
@@ -119,11 +142,14 @@ function _update()
 end
 
 function _draw()
-    cls()
+    cls(12)
     if WIN then print("WIN") end
-    spr(goal.sprite, goal.x, goal.y)
-    spr(body.sprite, body.x, body.y)
-    spr(arm.sprite, body.x+arm.x, body.y+arm.y)
+    circfill(body.x, body.y, 8, 14)
+    circfill(goal.x, goal.y, 4, 4)
+    circfill(body.x+arm.x, body.y+arm.y, 4, 14)
+    -- spr(goal.sprite, goal.x, goal.y)
+    -- spr(body.sprite, body.x, body.y)
+    -- spr(arm.sprite, body.x+arm.x, body.y+arm.y)
 end
 
 __gfx__
