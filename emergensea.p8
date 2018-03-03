@@ -19,21 +19,24 @@ goal.h = 8
 goal.sprite = 1
 
 body = {}
+body.oldArms = {}
 body.x = 50
 body.y = 50
 body.w = 8
 body.h = 8
 body.sprite = 1
 -- arm is current arm
--- todo: add array of previous arms
-arm = {}
-arm.x = -10
-arm.y = 0
-arm.sprite = 3
--- will be a list with keyEvents
-arm.keyEvents = {}
-add(arm.keyEvents, {time=0,keys=0})
-arm.eventCounter = 0
+function initArm()
+  -- todo: add array of previous arms
+  arm = {}
+  arm.x = -10
+  arm.y = 0
+  arm.sprite = 3
+  -- will be a list with keyEvents
+  arm.keyEvents = {}
+  add(arm.keyEvents, {time=0,keys=0})
+  arm.eventCounter = 0
+end
 
 levelTime = 0
 currentLevel = 1
@@ -67,6 +70,10 @@ function loadLevel(lvl)
     goal.x = 110
     goal.y = 10
   end
+end
+
+function _init()
+  initArm()
 end
 
 function recordKeyEvents()
@@ -170,16 +177,36 @@ function moveBody()
   if (totalX > constants.minDistanceFromBody) then
     body.x += constants.bodySpeed
     moveArmX(arm, -constants.bodySpeed)
+    if #body.oldArms > 0 then
+      for oldArm in all (body.oldArms) do
+        moveArmX(oldArm, -constants.bodySpeed)
+      end
+    end
   elseif (totalX < -constants.minDistanceFromBody) then
     body.x -= constants.bodySpeed
     moveArmX(arm, constants.bodySpeed)
+    if #body.oldArms > 0 then
+      for oldArm in all (body.oldArms) do
+        moveArmX(oldArm, constants.bodySpeed)
+      end
+    end
   end
   if (totalY > constants.minDistanceFromBody) then
     body.y += constants.bodySpeed
     moveArmY(arm, -constants.bodySpeed)
+    if #body.oldArms > 0 then
+      for oldArm in all (body.oldArms) do
+        moveArmY(oldArm, -constants.bodySpeed)
+      end
+    end
   elseif (totalY < -constants.minDistanceFromBody) then
     body.y -= constants.bodySpeed
     moveArmY(arm, constants.bodySpeed)
+    if #body.oldArms > 0 then
+      for oldArm in all (body.oldArms) do
+        moveArmY(oldArm, constants.bodySpeed)
+      end
+    end
   end
   -- check for OOB
   if (body.x > (constants.windowSize - constants.minDistanceFromBody)) then
@@ -228,7 +255,15 @@ end
 
 function showGameOver()
   -- todo
-  printMsg = "YOU WIN!!!!"
+  if checkCollide(body,goal) then Win() end
+end
+
+function Win()
+ add(body.oldArms,arm)
+ initArm()
+ level_time = 0
+ body.x = 50
+ body.y = 50
 end
 
 function animateBody()
