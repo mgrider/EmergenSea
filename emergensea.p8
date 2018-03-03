@@ -27,8 +27,25 @@ arm = {}
 arm.x = -10
 arm.y = 0
 arm.sprite = 3
+-- will be a list with key_events
+arm.key_events = {}
+add(arm.key_events, {time=0,keys=0})
+arm.event_counter = 0
+
+level_time = 0
+current_key = {}
+print_msg = ""
+
+function recordKeyEvents()
+  last_key = arm.key_events[#arm.key_events].keys
+  if current_key != last_key then
+    add(arm.key_events, {keys=current_key, time=level_time})
+    print_msg = "K"..current_key..", T"..level_time..", "..last_key
+  end
+end
 
 function moveCheck()
+  current_key = btn()
   if btn(0) then
     moveArmX(arm, -constants.armSpeed)
   end
@@ -44,6 +61,7 @@ function moveCheck()
   if btn(5) then
     moveBody()
   end
+  recordKeyEvents()
 end
 
 function moveArmX(thisArm, x)
@@ -116,11 +134,12 @@ function _update()
   moveCheck()
   goalCheck()
   animateBody()
+  level_time += 1
 end
 
 function _draw()
     cls()
-    if WIN then print("WIN") end
+    print(print_msg)
     spr(goal.sprite, goal.x, goal.y)
     spr(body.sprite, body.x, body.y)
     spr(arm.sprite, body.x+arm.x, body.y+arm.y)
