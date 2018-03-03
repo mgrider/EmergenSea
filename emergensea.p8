@@ -4,7 +4,8 @@ __lua__
 
 -- add globals here
 constants = {}
-constants.speed = 3
+constants.armSpeed = 3
+constants.bodySpeed = 2
 constants.maxDistanceFromBody = 24
 
 body = {}
@@ -12,7 +13,7 @@ body.x = 50
 body.y = 50
 body.sprite = 1
 -- arm is current arm
--- todo: add array of previous arms later
+-- todo: add array of previous arms
 arm = {}
 arm.x = -10
 arm.y = 0
@@ -20,20 +21,38 @@ arm.sprite = 3
 
 function moveCheck()
   if btn(0) then
-    arm.x -= constants.speed
+    arm.x -= constants.armSpeed
     arm.x = (abs(arm.x) <= constants.maxDistanceFromBody) and arm.x or -constants.maxDistanceFromBody
   end
   if btn(1) then
-    arm.x += constants.speed
+    arm.x += constants.armSpeed
     arm.x = (arm.x <= constants.maxDistanceFromBody) and arm.x or constants.maxDistanceFromBody
   end
   if btn(2) then
-    arm.y -= constants.speed
+    arm.y -= constants.armSpeed
     arm.y = (abs(arm.y) <= constants.maxDistanceFromBody) and arm.y or -constants.maxDistanceFromBody
   end
   if btn(3) then
-    arm.y += constants.speed
+    arm.y += constants.armSpeed
     arm.y = (arm.y <= constants.maxDistanceFromBody) and arm.y or constants.maxDistanceFromBody
+  end
+  if btn(5) then
+    moveBody()
+  end
+end
+
+function moveBody()
+  local totalX = arm.x
+  local totalY = arm.y
+  if (totalX > 0) then
+    body.x += constants.bodySpeed
+  elseif (totalX < 0) then
+    body.x -= constants.bodySpeed
+  end
+  if (totalY > 0) then
+    body.y += constants.bodySpeed
+  elseif (totalY < 0) then
+    body.y -= constants.bodySpeed
   end
 end
 
