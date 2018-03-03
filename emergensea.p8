@@ -21,23 +21,37 @@ arm.sprite = 3
 
 function moveCheck()
   if btn(0) then
-    arm.x -= constants.armSpeed
-    arm.x = (abs(arm.x) <= constants.maxDistanceFromBody) and arm.x or -constants.maxDistanceFromBody
+    moveArmX(arm, -constants.armSpeed)
   end
   if btn(1) then
-    arm.x += constants.armSpeed
-    arm.x = (arm.x <= constants.maxDistanceFromBody) and arm.x or constants.maxDistanceFromBody
+    moveArmX(arm, constants.armSpeed)
   end
   if btn(2) then
-    arm.y -= constants.armSpeed
-    arm.y = (abs(arm.y) <= constants.maxDistanceFromBody) and arm.y or -constants.maxDistanceFromBody
+    moveArmY(arm, -constants.armSpeed)
   end
   if btn(3) then
-    arm.y += constants.armSpeed
-    arm.y = (arm.y <= constants.maxDistanceFromBody) and arm.y or constants.maxDistanceFromBody
+    moveArmY(arm, constants.armSpeed)
   end
   if btn(5) then
     moveBody()
+  end
+end
+
+function moveArmX(thisArm, x)
+  thisArm.x += x
+  if (thisArm.x > constants.maxDistanceFromBody) then
+    thisArm.x = constants.maxDistanceFromBody
+  elseif (thisArm.x < -constants.maxDistanceFromBody) then
+    thisArm.x = -constants.maxDistanceFromBody
+  end
+end
+
+function moveArmY(thisArm, y)
+  thisArm.y += y
+  if (thisArm.y > constants.maxDistanceFromBody) then
+    thisArm.y = constants.maxDistanceFromBody
+  elseif (thisArm.y < -constants.maxDistanceFromBody) then
+    thisArm.y = -constants.maxDistanceFromBody
   end
 end
 
@@ -46,13 +60,17 @@ function moveBody()
   local totalY = arm.y
   if (totalX > 0) then
     body.x += constants.bodySpeed
+    moveArmX(arm, -constants.bodySpeed)
   elseif (totalX < 0) then
     body.x -= constants.bodySpeed
+    moveArmX(arm, constants.bodySpeed)
   end
   if (totalY > 0) then
     body.y += constants.bodySpeed
+    moveArmY(arm, -constants.bodySpeed)
   elseif (totalY < 0) then
     body.y -= constants.bodySpeed
+    moveArmY(arm, constants.bodySpeed)
   end
 end
 
