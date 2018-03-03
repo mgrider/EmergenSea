@@ -16,25 +16,32 @@ goal.h = 8
 goal.sprite = 1
 
 body = {}
+body.oldArms = {}
 body.x = 50
 body.y = 50
 body.w = 8
 body.h = 8
 body.sprite = 1
 -- arm is current arm
--- todo: add array of previous arms
-arm = {}
-arm.x = -10
-arm.y = 0
-arm.sprite = 3
--- will be a list with key_events
-arm.key_events = {}
-add(arm.key_events, {time=0,keys=0})
-arm.event_counter = 0
+function init_arm()
+  -- todo: add array of previous arms
+  arm = {}
+  arm.x = -10
+  arm.y = 0
+  arm.sprite = 3
+  -- will be a list with key_events
+  arm.key_events = {}
+  add(arm.key_events, {time=0,keys=0})
+  arm.event_counter = 0
+end
 
 level_time = 0
 current_key = {}
 print_msg = ""
+
+function _init()
+  init_arm()
+end
 
 function recordKeyEvents()
   last_key = arm.key_events[#arm.key_events].keys
@@ -44,16 +51,16 @@ function recordKeyEvents()
 end
 
 function moveArm(arm, buttons)
-  if interpret_btn(buttons, 0)) then
+  if interpret_btn(buttons, 0) then
     moveArmX(arm, -constants.armSpeed)
   end
-  if interpret_btn(buttons, 1)) then
+  if interpret_btn(buttons, 1) then
     moveArmX(arm, constants.armSpeed)
   end
-  if interpret_btn(buttons, 2)) then
+  if interpret_btn(buttons, 2) then
     moveArmY(arm, -constants.armSpeed)
   end
-  if interpret_btn(buttons, 3)) then
+  if interpret_btn(buttons, 3) then
     moveArmY(arm, constants.armSpeed)
   end
 end
@@ -127,16 +134,36 @@ function moveBody()
   if (totalX > 0) then
     body.x += constants.bodySpeed
     moveArmX(arm, -constants.bodySpeed)
+    if #body.oldArms > 0 then
+      for oldArm in all (body.oldArms) do
+        moveArmX(oldArm, -constants.bodySpeed)
+      end
+  end
   elseif (totalX < 0) then
     body.x -= constants.bodySpeed
     moveArmX(arm, constants.bodySpeed)
+    if #body.oldArms > 0 then
+      for oldArm in all (body.oldArms) do
+        moveArmX(oldArm, constants.bodySpeed)
+      end
+    end
   end
   if (totalY > 0) then
     body.y += constants.bodySpeed
     moveArmY(arm, -constants.bodySpeed)
+    if #body.oldArms > 0 then
+      for oldArm in all (body.oldArms) do
+        moveArmY(oldArm, -constants.bodySpeed)
+      end
+    end
   elseif (totalY < 0) then
     body.y -= constants.bodySpeed
     moveArmY(arm, constants.bodySpeed)
+    if #body.oldArms > 0 then
+      for oldArm in all (body.oldArms) do
+        moveArmY(oldArm, constants.bodySpeed)
+      end
+    end
   end
 end
 
@@ -159,7 +186,15 @@ end
 
 function goalCheck()
   -- todo
-  if checkCollide(body,goal) then WIN=true end
+  if checkCollide(body,goal) then Win() end
+end
+
+function Win()
+ add(body.oldArms,arm)
+ init_arm()
+ level_time = 0
+ body.x = 50
+ body.y = 50
 end
 
 function animateBody()
