@@ -3,6 +3,26 @@ version 16
 __lua__
 // this is a comment
 -- this is a comment too!
+
+body = {}
+body.x = 50
+body.y = 50
+body.sprite = 1
+arm = {}
+arm.x = body.x - 10
+arm.y = body.y
+arm.sprite = 3
+
+
+function _update()
+end
+
+function _draw()
+    cls()
+    spr(body.sprite, body.x, body.y)
+    spr(arm.sprite, arm.x, arm.y)
+end
+
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
