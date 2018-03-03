@@ -3,18 +3,37 @@ version 16
 __lua__
 // this is a comment
 -- this is a comment too!
+speed = 3
+
 
 body = {}
 body.x = 50
 body.y = 50
 body.sprite = 1
+-- arm is current arm
+-- add array of previous arms later
 arm = {}
 arm.x = body.x - 10
 arm.y = body.y
 arm.sprite = 3
 
+function move()
+  body.sprite += 1
+  if body.sprite > 2 then
+    body.sprite = 1
+  end
+end
+
 
 function _update()
+  if btn(0) then
+    arm.x -= speed
+    move()
+  end
+  if btn(1) then
+    arm.y += speed
+    move()
+  end
 end
 
 function _draw()
