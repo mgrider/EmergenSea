@@ -1,39 +1,52 @@
 pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
-// this is a comment
--- this is a comment too!
-speed = 3
 
+-- add globals here
+constants = {}
+constants.speed = 3
 
 body = {}
 body.x = 50
 body.y = 50
 body.sprite = 1
 -- arm is current arm
--- add array of previous arms later
+-- todo: add array of previous arms later
 arm = {}
 arm.x = body.x - 10
 arm.y = body.y
 arm.sprite = 3
 
-function move()
+function moveCheck()
+  if btn(0) then
+    arm.x -= constants.speed
+  end
+  if btn(1) then
+    arm.x += constants.speed
+  end
+  if btn(2) then
+    arm.y -= constants.speed
+  end
+  if btn(3) then
+    arm.y += constants.speed
+  end
+end
+
+function goalCheck()
+  -- todo
+end
+
+function animateBody()
   body.sprite += 1
   if body.sprite > 2 then
     body.sprite = 1
   end
 end
 
-
 function _update()
-  if btn(0) then
-    arm.x -= speed
-    move()
-  end
-  if btn(1) then
-    arm.y += speed
-    move()
-  end
+  moveCheck()
+  goalCheck()
+  animateBody()
 end
 
 function _draw()
