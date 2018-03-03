@@ -4,15 +4,25 @@ __lua__
 
 -- add globals here
 constants = {}
-constants.speed = 3
+constants.armSpeed = 3
+constants.bodySpeed = 2
 constants.maxDistanceFromBody = 24
+
+goal = {}
+goal.x = 10
+goal.y = 50
+goal.w = 8
+goal.h = 8
+goal.sprite = 1
 
 body = {}
 body.x = 50
 body.y = 50
+body.w = 8
+body.h = 8
 body.sprite = 1
 -- arm is current arm
--- todo: add array of previous arms later
+-- todo: add array of previous arms
 arm = {}
 arm.x = -10
 arm.y = 0
@@ -20,25 +30,79 @@ arm.sprite = 3
 
 function moveCheck()
   if btn(0) then
-    arm.x -= constants.speed
-    arm.x = (abs(arm.x) <= constants.maxDistanceFromBody) and arm.x or -constants.maxDistanceFromBody
+    moveArmX(arm, -constants.armSpeed)
   end
   if btn(1) then
-    arm.x += constants.speed
-    arm.x = (arm.x <= constants.maxDistanceFromBody) and arm.x or constants.maxDistanceFromBody
+    moveArmX(arm, constants.armSpeed)
   end
   if btn(2) then
-    arm.y -= constants.speed
-    arm.y = (abs(arm.y) <= constants.maxDistanceFromBody) and arm.y or -constants.maxDistanceFromBody
+    moveArmY(arm, -constants.armSpeed)
   end
   if btn(3) then
-    arm.y += constants.speed
-    arm.y = (arm.y <= constants.maxDistanceFromBody) and arm.y or constants.maxDistanceFromBody
+    moveArmY(arm, constants.armSpeed)
   end
+  if btn(5) then
+    moveBody()
+  end
+end
+
+function moveArmX(thisArm, x)
+  thisArm.x += x
+  if (thisArm.x > constants.maxDistanceFromBody) then
+    thisArm.x = constants.maxDistanceFromBody
+  elseif (thisArm.x < -constants.maxDistanceFromBody) then
+    thisArm.x = -constants.maxDistanceFromBody
+  end
+end
+
+function moveArmY(thisArm, y)
+  thisArm.y += y
+  if (thisArm.y > constants.maxDistanceFromBody) then
+    thisArm.y = constants.maxDistanceFromBody
+  elseif (thisArm.y < -constants.maxDistanceFromBody) then
+    thisArm.y = -constants.maxDistanceFromBody
+  end
+end
+
+function moveBody()
+  local totalX = arm.x
+  local totalY = arm.y
+  if (totalX > 0) then
+    body.x += constants.bodySpeed
+    moveArmX(arm, -constants.bodySpeed)
+  elseif (totalX < 0) then
+    body.x -= constants.bodySpeed
+    moveArmX(arm, constants.bodySpeed)
+  end
+  if (totalY > 0) then
+    body.y += constants.bodySpeed
+    moveArmY(arm, -constants.bodySpeed)
+  elseif (totalY < 0) then
+    body.y -= constants.bodySpeed
+    moveArmY(arm, constants.bodySpeed)
+  end
+end
+
+function checkpointInBox(x,y,a)
+  if (y < a.y + a.h and y >= a.y) then
+    if (x < a.x + a.w and x >= a.x) then
+      return true
+    end
+  end
+  return false
+end
+
+function checkCollide(a,b)
+  if checkpointInBox(a.x,a.y,b) then return true end
+  if checkpointInBox(a.x+a.w,a.y,b) then return true end
+  if checkpointInBox(a.x,a.y+a.h,b) then return true end
+  if checkpointInBox(a.x+a.w,a.y+a.h,b) then return true end
+  return false
 end
 
 function goalCheck()
   -- todo
+  if checkCollide(body,goal) then WIN=true end
 end
 
 function animateBody()
@@ -56,6 +120,8 @@ end
 
 function _draw()
     cls()
+    if WIN then print("WIN") end
+    spr(goal.sprite, goal.x, goal.y)
     spr(body.sprite, body.x, body.y)
     spr(arm.sprite, body.x+arm.x, body.y+arm.y)
 end
