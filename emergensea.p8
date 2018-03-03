@@ -9,6 +9,7 @@ constants.bodySpeed = 2
 constants.maxDistanceFromBody = 24
 constants.minDistanceFromBody = 6
 constants.windowSize = 128
+constants.maxLevel = 5
 
 goal = {}
 goal.x = 10
@@ -35,8 +36,38 @@ add(arm.key_events, {time=0,keys=0})
 arm.event_counter = 0
 
 level_time = 0
+current_level = 1
 current_key = {}
 print_msg = ""
+
+function loadLevel(lvl)
+  if (lvl ==  1) then
+    body.x = 96
+    body.y = 64
+    goal.x = 10
+    goal.y = 64
+  elseif (lvl == 2) then
+    body.x = 96
+    body.y = 64
+    goal.x = 10
+    goal.y = 10
+  elseif (lvl == 3) then
+    body.x = 96
+    body.y = 64
+    goal.x = 110
+    goal.y = 110
+  elseif (lvl == 4) then
+    body.x = 96
+    body.y = 64
+    goal.x = 10
+    goal.y = 110
+  elseif (lvl == 5) then
+    body.x = 96
+    body.y = 64
+    goal.x = 110
+    goal.y = 10
+  end
+end
 
 function recordKeyEvents()
   last_key = arm.key_events[#arm.key_events].keys
@@ -142,8 +173,23 @@ function checkCollide(a,b)
 end
 
 function goalCheck()
+  if checkCollide(body,goal) then
+    winLevel()
+  end
+end
+
+function winLevel()
+  current_level += 1
+  if (current_level > constants.maxLevel) then
+    showGameOver()
+  else
+    loadLevel(current_level)
+  end
+end
+
+function showGameOver()
   -- todo
-  if checkCollide(body,goal) then WIN=true end
+  print_msg = "YOU WIN!!!!"
 end
 
 function animateBody()
@@ -151,6 +197,10 @@ function animateBody()
   if body.sprite > 2 then
     body.sprite = 1
   end
+end
+
+function _init()
+  loadLevel(1)
 end
 
 function _update()
