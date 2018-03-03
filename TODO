@@ -1,5 +1,9 @@
 "Level loader" (goal x,y and maybe start x,y)
 Represent arm data for replay
-Add boarder
+Add score/status/header
+More animations
+Level transitions
+Title screen
+Add border
 Obstacles?
 Enemies?
