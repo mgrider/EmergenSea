@@ -34,8 +34,13 @@ function initArm()
   arm.sprite = 3
   -- will be a list with keyEvents
   arm.keyEvents = {}
-  add(arm.keyEvents, {time=0,keys=0})
-  arm.eventCounter = 0
+end
+
+function addEvent()
+  if #arm.keyEvents == 0 then
+    arm.startTime = levelTime
+  end
+  add(arm.keyEvents, {time=levelTime-arm.startTime,keys=currentKey})
 end
 
 function sort_queue(q)
@@ -133,7 +138,9 @@ end
 
 levelTime = 0
 currentLevel = 1
-currentKey = {}
+currentKey = 0
+lastKey = 0
+ignoreAllInputsForever = false
 printMsg = ""
 
 function loadLevel(lvl)
@@ -166,9 +173,10 @@ function loadLevel(lvl)
 end
 
 function recordKeyEvents()
-  lastKey = arm.keyEvents[#arm.keyEvents].keys
   if currentKey != lastKey then
-    add(arm.keyEvents, {keys=currentKey, time=levelTime})
+    ignoreAllInputsForever=false
+    lastKey = currentKey
+    addEvent()
   end
 end
 
@@ -199,7 +207,7 @@ end
 
 function replayKeyEvents()
   for oldArm in all(body.oldArms) do
-    keys = getButtonStateAtTimeIndex(oldArm.keyEvents, levelTime)
+    keys = getButtonStateAtTimeIndex(oldArm.keyEvents, levelTime % oldArm.loopDuration)
     moveArm(oldArm, keys)
   end
 end
@@ -263,6 +271,11 @@ end
 function moveBody()
   local totalX = arm.x
   local totalY = arm.y
+  for oldArm in all (body.oldArms) do
+    totalX += oldArm.x
+    totalY += oldArm.y
+  end
+
   if (totalX > constants.minDistanceFromBody) then
     body.x += constants.bodySpeed
     moveArmX(arm, -constants.bodySpeed)
@@ -332,9 +345,10 @@ function winLevel()
   else
     loadLevel(currentLevel)
   end
+  arm.loopDuration = levelTime - arm.startTime
   add(body.oldArms,arm)
   initArm()
-  levelTime = 0
+  ignoreAllInputsForever = true
 end
 
 function showGameOver()
@@ -364,11 +378,7 @@ end
 function _draw()
     cls(12)
     print(printMsg)
-    
-    -- circfill(body.x, body.y, 8, 14)
-    -- circfill(body.x+arm.x, body.y+arm.y, 4, 14)
-    -- circfill(goal.x, goal.y, 4, 4)
-    
+
     monster:draw_head(body.x, body.y)
     for oldArm in all(body.oldArms) do
       monster:draw_left_tentacle(body.x+oldArm.x, body.y+oldArm.y, false)
