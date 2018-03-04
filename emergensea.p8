@@ -88,6 +88,14 @@ function monster:set_pal(active)
 	end
 end
 
+function monster:draw_tentacle(x, y, active)
+  if x <= body.x then
+    monster:draw_left_tentacle(x, y, active)
+  else
+    monster:draw_right_tentacle(x, y, active)
+  end
+end
+
 function monster:draw_left_tentacle(x, y, active)
   self:push(y, function()
     clip()
@@ -382,10 +390,10 @@ function _draw()
 
     monster:draw_head(body.x, body.y)
     for oldArm in all(body.oldArms) do
-      monster:draw_left_tentacle(body.x+oldArm.x, body.y+oldArm.y, false)
+      monster:draw_tentacle(body.x+oldArm.x, body.y+oldArm.y, false)
       -- spr(oldArm.sprite, body.x+oldArm.x, body.y+oldArm.y)
     end
-    monster:draw_right_tentacle(body.x+arm.x, body.y+arm.y, true)
+    monster:draw_tentacle(body.x+arm.x, body.y+arm.y, true)
     
     monster:draw_target(goal.x, goal.y)
     
