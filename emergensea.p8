@@ -22,6 +22,7 @@ state.printMsg = ""
 state.statePlaying = "PLAYING"
 state.stateBetweenLevels = "BETWEEN_LEVELS"
 state.stateGameOver = "GAME_OVER"
+state.gameOverTime = 0.0
 state.currentState = state.statePlaying
 
 goal = {}
@@ -389,7 +390,7 @@ end
 
 function showGameOver()
   setCurrentState(state.stateGameOver)
-  -- todo
+  state.gameOverTime = time()
 end
 
 function animateBody()
@@ -441,7 +442,7 @@ function _draw()
     cls(12)
   if state.currentState == state.stateGameOver then
     cls()
-    print ("GAME OVER", 50, 50)
+    print ("GAME OVER\n\nTIME: "..tostr(state.gameOverTime), 50, 50)
   else
     -- print(state.printMsg)
 
@@ -460,7 +461,6 @@ function _draw()
 
     monster:flush()
   end
-
 end
 
 
