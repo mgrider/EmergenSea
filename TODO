@@ -1,11 +1,16 @@
-Represent arm data for replay
 Add score/status/header
-More animations
-Level transitions
+Fix arm motion so it resets position at end of loop?
+Level transitions (Marty?)
 Title screen
+Disallow arm motion during body motion?
+Tweak speak/arm averaging?
 Add border
+
+NAH
 Obstacles?
 Enemies?
 
 DONE
 "Level loader" (goal x,y and maybe start x,y)
+Represent arm data for replay
+More animations

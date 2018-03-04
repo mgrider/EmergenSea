@@ -25,7 +25,7 @@ state.stateGameOver = "GAME_OVER"
 state.currentState = state.statePlaying
 
 goal = {}
-goal.x = 10
+goal.x = 20
 goal.y = 50
 goal.w = 8
 goal.h = 8
@@ -33,7 +33,7 @@ goal.sprite = 1
 
 body = {}
 body.oldArms = {}
-body.x = 50
+body.x = 60
 body.y = 50
 body.w = 8
 body.h = 8
@@ -101,6 +101,14 @@ function monster:set_pal(active)
 	end
 end
 
+function monster:draw_tentacle(x, y, active)
+  if x <= body.x then
+    monster:draw_left_tentacle(x, y, active)
+  else
+    monster:draw_right_tentacle(x, y, active)
+  end
+end
+
 function monster:draw_left_tentacle(x, y, active)
   self:push(y, function()
     clip()
@@ -151,29 +159,29 @@ end
 
 function loadLevel(lvl)
   if (lvl ==  1) then
-    body.x = 96
+    body.x = 106
     body.y = 64
-    goal.x = 10
+    goal.x = 20
     goal.y = 64
   elseif (lvl == 2) then
-    body.x = 96
+    body.x = 106
     body.y = 64
-    goal.x = 10
-    goal.y = 10
+    goal.x = 20
+    goal.y = 20
   elseif (lvl == 3) then
     body.x = 96
     body.y = 64
-    goal.x = 110
-    goal.y = 110
+    goal.x = 100
+    goal.y = 100
   elseif (lvl == 4) then
     body.x = 96
     body.y = 64
     goal.x = 10
-    goal.y = 110
+    goal.y = 100
   elseif (lvl == 5) then
     body.x = 96
     body.y = 64
-    goal.x = 110
+    goal.x = 100
     goal.y = 10
   end
 end
@@ -415,10 +423,10 @@ function _draw()
 
     monster:draw_head(body.x, body.y)
     for oldArm in all(body.oldArms) do
-      monster:draw_left_tentacle(body.x+oldArm.x, body.y+oldArm.y, false)
+      monster:draw_tentacle(body.x+oldArm.x, body.y+oldArm.y, false)
       -- spr(oldArm.sprite, body.x+oldArm.x, body.y+oldArm.y)
     end
-    monster:draw_right_tentacle(body.x+arm.x, body.y+arm.y, true)
+    monster:draw_tentacle(body.x+arm.x, body.y+arm.y, true)
 
     monster:draw_target(goal.x, goal.y)
 
