@@ -26,9 +26,17 @@ function monster:draw_head(x, y)
 	spr(0, x - 8, y - 13 + 16*self.submerge, 2, 2)
 end
 
-function monster:draw_left_tentacle(x, y)
-	clip()
+function monster:set_pal(active)
 	pal()
+	if active and self.time % 0.5 < 0.2 then
+		pal(14, 8)
+		pal(2 , 8)
+	end
+end
+
+function monster:draw_left_tentacle(x, y, active)
+	clip()
+	self:set_pal(active)
 	
 	local frame = self.SMALL_SPLASH[flr(2.5*self.time)%2 + 1]
 	spr(frame, x + 1, y - 4)
@@ -38,14 +46,9 @@ function monster:draw_left_tentacle(x, y)
 	spr(frame, x, y - 8 + 8*self.submerge)
 end
 
-function monster:draw_right_tentacle(x, y)
+function monster:draw_right_tentacle(x, y, active)
 	clip()
-	pal()
-	
-	-- if time % 1 < 0.5 then
-	-- 	pal(14, 8)
-	-- 	pal(2 , 8)
-	-- end
+	self:set_pal(active)
 	
 	local frame = self.SMALL_SPLASH[flr(2.5*self.time)%2 + 1]
 	spr(frame, x - 1, y - 4)
@@ -60,8 +63,8 @@ function _draw()
 	
 	monster:tick()
 	monster:draw_head(64, 64)
-	monster:draw_left_tentacle(40, 64)
-	monster:draw_right_tentacle(80, 64)
+	monster:draw_left_tentacle(40, 64, true)
+	monster:draw_right_tentacle(80, 64, false)
 end
 
 __gfx__
