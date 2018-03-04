@@ -9,6 +9,7 @@ constants.bodySpeed = 2
 constants.maxDistanceFromBody = 24
 constants.minDistanceFromBody = 6
 constants.windowSize = 128
+constants.maxLevel = 5
 
 goal = {}
 goal.x = 10
@@ -29,25 +30,55 @@ arm = {}
 arm.x = -10
 arm.y = 0
 arm.sprite = 3
--- will be a list with key_events
-arm.key_events = {}
-add(arm.key_events, {time=0,keys=0})
-arm.event_counter = 0
+-- will be a list with keyEvents
+arm.keyEvents = {}
+add(arm.keyEvents, {time=0,keys=0})
+arm.eventCounter = 0
 
-level_time = 0
-current_key = {}
-print_msg = ""
+levelTime = 0
+currentLevel = 1
+currentKey = {}
+printMsg = ""
+
+function loadLevel(lvl)
+  if (lvl ==  1) then
+    body.x = 96
+    body.y = 64
+    goal.x = 10
+    goal.y = 64
+  elseif (lvl == 2) then
+    body.x = 96
+    body.y = 64
+    goal.x = 10
+    goal.y = 10
+  elseif (lvl == 3) then
+    body.x = 96
+    body.y = 64
+    goal.x = 110
+    goal.y = 110
+  elseif (lvl == 4) then
+    body.x = 96
+    body.y = 64
+    goal.x = 10
+    goal.y = 110
+  elseif (lvl == 5) then
+    body.x = 96
+    body.y = 64
+    goal.x = 110
+    goal.y = 10
+  end
+end
 
 function recordKeyEvents()
-  last_key = arm.key_events[#arm.key_events].keys
-  if current_key != last_key then
-    add(arm.key_events, {keys=current_key, time=level_time})
-    print_msg = "K"..current_key..", T"..level_time..", "..last_key
+  lastKey = arm.keyEvents[#arm.keyEvents].keys
+  if currentKey != lastKey then
+    add(arm.keyEvents, {keys=currentKey, time=levelTime})
+    printMsg = "K"..currentKey..", T"..levelTime..", "..lastKey
   end
 end
 
 function moveCheck()
-  current_key = btn()
+  currentKey = btn()
   if btn(0) then
     moveArmX(arm, -constants.armSpeed)
   end
@@ -142,8 +173,23 @@ function checkCollide(a,b)
 end
 
 function goalCheck()
+  if checkCollide(body,goal) then
+    winLevel()
+  end
+end
+
+function winLevel()
+  currentLevel += 1
+  if (currentLevel > constants.maxLevel) then
+    showGameOver()
+  else
+    loadLevel(currentLevel)
+  end
+end
+
+function showGameOver()
   -- todo
-  if checkCollide(body,goal) then WIN=true end
+  printMsg = "YOU WIN!!!!"
 end
 
 function animateBody()
@@ -153,16 +199,20 @@ function animateBody()
   end
 end
 
+function _init()
+  loadLevel(1)
+end
+
 function _update()
   moveCheck()
   goalCheck()
   animateBody()
-  level_time += 1
+  levelTime += 1
 end
 
 function _draw()
     cls(12)
-    print(print_msg)
+    print(printMsg)
     circfill(body.x, body.y, 8, 14)
     circfill(goal.x, goal.y, 4, 4)
     circfill(body.x+arm.x, body.y+arm.y, 4, 14)
