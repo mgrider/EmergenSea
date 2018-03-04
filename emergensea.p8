@@ -45,6 +45,8 @@ function initArm()
   arm = {}
   arm.x = 10
   arm.y = 20
+  arm.w = 8
+  arm.h = 8
   arm.sprite = 3
   -- will be a list with keyEvents
   arm.keyEvents = {}
@@ -238,7 +240,7 @@ end
 function replayKeyEvents()
   for oldArm in all(body.oldArms) do
     keys = getButtonStateAtTimeIndex(oldArm.keyEvents, state.levelTime % oldArm.loopDuration)
-    if state.levelTime % oldArm.loopDuration == 0then
+    if state.levelTime % oldArm.loopDuration == 0 then
       oldArm.x = 10
       oldArm.y = 20
     else
@@ -277,13 +279,13 @@ function moveArmX(thisArm, x)
   thisArm.x += x
   if (thisArm.x > constants.maxDistanceFromBody) then
     thisArm.x = constants.maxDistanceFromBody
-  elseif (thisArm.x < -constants.maxDistanceFromBody) then
-    thisArm.x = -constants.maxDistanceFromBody
+  elseif (thisArm.x < -constants.maxDistanceFromBody - thisArm.w) then
+    thisArm.x = -constants.maxDistanceFromBody - thisArm.w
   end
-  if ((thisArm.x + body.x) > constants.windowSize) then
-    thisArm.x = constants.windowSize - body.x
-  elseif ((thisArm.x + body.x) < 0) then
-    thisArm.x = -constants.minDistanceFromBody
+  if ((thisArm.x + body.x) > constants.windowSize - thisArm.w) then
+    thisArm.x = constants.windowSize - body.x - thisArm.w
+  elseif ((thisArm.x + body.x + thisArm.w) < thisArm.w) then
+    thisArm.x = -(constants.minDistanceFromBody + body.x - thisArm.w)
   end
 end
 
@@ -296,8 +298,8 @@ function moveArmY(thisArm, y)
   end
   if ((thisArm.y + body.y) > constants.windowSize) then
     thisArm.y = constants.windowSize - body.y
-  elseif ((thisArm.y + body.y) < 0) then
-    thisArm.y = -constants.minDistanceFromBody
+  elseif ((thisArm.y + body.y + thisArm.h) < thisArm.h) then
+    thisArm.y = -(constants.minDistanceFromBody + body.y - thisArm.h)
   end
 end
 
@@ -315,7 +317,7 @@ function moveBody()
     for oldArm in all (body.oldArms) do
       moveArmX(oldArm, -constants.bodySpeed)
     end
-  elseif (totalX < -constants.minDistanceFromBody) then
+  elseif (totalX < -(constants.minDistanceFromBody + arm.w)) then
     body.x -= constants.bodySpeed
     moveArmX(arm, constants.bodySpeed)
     for oldArm in all (body.oldArms) do
@@ -328,7 +330,7 @@ function moveBody()
     for oldArm in all (body.oldArms) do
       moveArmY(oldArm, -constants.bodySpeed)
     end
-  elseif (totalY < -constants.minDistanceFromBody) then
+  elseif (totalY < -(constants.minDistanceFromBody)) then
     body.y -= constants.bodySpeed
     moveArmY(arm, constants.bodySpeed)
     for oldArm in all (body.oldArms) do
