@@ -42,8 +42,8 @@ body.sprite = 1
 function initArm()
   -- todo: add array of previous arms
   arm = {}
-  arm.x = -10
-  arm.y = 0
+  arm.x = 10
+  arm.y = 20
   arm.sprite = 3
   -- will be a list with keyEvents
   arm.keyEvents = {}
