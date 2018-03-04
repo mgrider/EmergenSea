@@ -72,10 +72,6 @@ function loadLevel(lvl)
   end
 end
 
-function _init()
-  initArm()
-end
-
 function recordKeyEvents()
   lastKey = arm.keyEvents[#arm.keyEvents].keys
   if currentKey != lastKey then
@@ -109,9 +105,9 @@ function getButtonStateAtTimeIndex(events, time_index)
 end
 
 function replayKeyEvents()
-  for arm in all(body.oldArms) do
-    keys = getButtonStateAtTimeIndex(arm.keyEvents, levelTime)
-    moveArm(arm, keys)
+  for oldArm in all(body.oldArms) do
+    keys = getButtonStateAtTimeIndex(oldArm.keyEvents, levelTime)
+    moveArm(oldArm, keys)
   end
 end
 
@@ -274,6 +270,7 @@ function animateBody()
 end
 
 function _init()
+  initArm()
   loadLevel(1)
 end
 
