@@ -38,9 +38,9 @@ end
 
 function addEvent()
   if #arm.keyEvents == 0 then
-    arm.startTime = levelTime
+    arm.startTime = state.levelTime
   end
-  add(arm.keyEvents, {time=levelTime-arm.startTime,keys=currentKey})
+  add(arm.keyEvents, {time=state.levelTime-arm.startTime,keys=state.currentKey})
 end
 
 function sort_queue(q)
@@ -136,12 +136,13 @@ function monster:flush()
   self.queue = {}
 end
 
-levelTime = 0
-currentLevel = 1
-currentKey = 0
-lastKey = 0
-ignoreAllInputsForever = false
-printMsg = ""
+state = {}
+state.levelTime = 0
+state.currentLevel = 1
+state.currentKey = 0
+state.lastKey = 0
+state.holdoffInputs = false
+state.printMsg = ""
 
 function loadLevel(lvl)
   if (lvl ==  1) then
@@ -173,9 +174,9 @@ function loadLevel(lvl)
 end
 
 function recordKeyEvents()
-  if currentKey != lastKey then
-    ignoreAllInputsForever=false
-    lastKey = currentKey
+  if state.currentKey != state.lastKey then
+    state.holdoffInputs=false
+    state.lastKey = state.currentKey
     addEvent()
   end
 end
@@ -207,7 +208,7 @@ end
 
 function replayKeyEvents()
   for oldArm in all(body.oldArms) do
-    keys = getButtonStateAtTimeIndex(oldArm.keyEvents, levelTime % oldArm.loopDuration)
+    keys = getButtonStateAtTimeIndex(oldArm.keyEvents, state.levelTime % oldArm.loopDuration)
     moveArm(oldArm, keys)
   end
 end
@@ -221,20 +222,20 @@ end
 
 
 function moveCheck()
-  currentKey = btn()
-  if interpretBtn(currentKey, 0) then
+  state.currentKey = btn()
+  if interpretBtn(state.currentKey, 0) then
     moveArmX(arm, -constants.armSpeed)
   end
-  if interpretBtn(currentKey, 1) then
+  if interpretBtn(state.currentKey, 1) then
     moveArmX(arm, constants.armSpeed)
   end
-  if interpretBtn(currentKey, 2) then
+  if interpretBtn(state.currentKey, 2) then
     moveArmY(arm, -constants.armSpeed)
   end
-  if interpretBtn(currentKey, 3) then
+  if interpretBtn(state.currentKey, 3) then
     moveArmY(arm, constants.armSpeed)
   end
-  if interpretBtn(currentKey, 5) then
+  if interpretBtn(state.currentKey, 5) then
     moveBody()
   end
   recordKeyEvents()
@@ -339,16 +340,16 @@ function goalCheck()
 end
 
 function winLevel()
-  currentLevel += 1
-  if (currentLevel > constants.maxLevel) then
+  state.currentLevel += 1
+  if (state.currentLevel > constants.maxLevel) then
     showGameOver()
   else
-    loadLevel(currentLevel)
+    loadLevel(state.currentLevel)
   end
-  arm.loopDuration = levelTime - arm.startTime
+  arm.loopDuration = state.levelTime - arm.startTime
   add(body.oldArms,arm)
   initArm()
-  ignoreAllInputsForever = true
+  state.holdoffInputs = true
 end
 
 function showGameOver()
@@ -372,12 +373,12 @@ function _update()
   goalCheck()
   animateBody()
   replayKeyEvents()
-  levelTime += 1
+  state.levelTime += 1
 end
 
 function _draw()
     cls(12)
-    print(printMsg)
+    print(state.printMsg)
 
     monster:draw_head(body.x, body.y)
     for oldArm in all(body.oldArms) do
