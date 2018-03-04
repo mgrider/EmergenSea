@@ -421,16 +421,7 @@ function _draw()
     cls(12)
   if state.currentState == state.stateGameOver then
     cls()
-    print ("")
-    print ("")
-    print ("")
-    print ("")
-    print ("")
-    print ("")
-    print ("")
-    print ("")
-    print ("")
-    print ("            GAME OVER")
+    print ("GAME OVER", 50, 50)
   else
     -- print(state.printMsg)
 
