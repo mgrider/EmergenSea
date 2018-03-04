@@ -100,8 +100,8 @@ end
 
 function getButtonStateAtTimeIndex(events, time_index)
   event_of_interest = {}
-  for event in events do
-    if time_index > events.time then
+  for event in all(events) do
+    if time_index > event.time then
       event_of_interest = event
     end
   end
@@ -109,9 +109,9 @@ function getButtonStateAtTimeIndex(events, time_index)
 end
 
 function replayKeyEvents()
-  for arm in body.old_arms do
-    keys = getButtonStateAtTimeIndex(level_time)
-    moveArm(arm, event_of_interest.keys)
+  for arm in all(body.oldArms) do
+    keys = getButtonStateAtTimeIndex(arm.keyEvents, levelTime)
+    moveArm(arm, keys)
   end
 end
 
@@ -261,7 +261,7 @@ end
 function Win()
  add(body.oldArms,arm)
  initArm()
- level_time = 0
+ levelTime = 0
  body.x = 50
  body.y = 50
 end
@@ -281,6 +281,7 @@ function _update()
   moveCheck()
   goalCheck()
   animateBody()
+  replayKeyEvents()
   levelTime += 1
 end
 
@@ -289,11 +290,16 @@ function _draw()
     print(printMsg)
     circfill(body.x, body.y, 8, 14)
     circfill(goal.x, goal.y, 4, 4)
+    for oldArm in all(body.oldArms) do
+      circfill(body.x+oldArm.x, body.y+oldArm.y, 8, 14)
+      -- spr(oldArm.sprite, body.x+oldArm.x, body.y+oldArm.y)
+    end
     circfill(body.x+arm.x, body.y+arm.y, 4, 14)
     -- spr(goal.sprite, goal.x, goal.y)
     -- spr(body.sprite, body.x, body.y)
     -- spr(arm.sprite, body.x+arm.x, body.y+arm.y)
 end
+
 
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
