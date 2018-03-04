@@ -42,8 +42,8 @@ body.sprite = 1
 function initArm()
   -- todo: add array of previous arms
   arm = {}
-  arm.x = -10
-  arm.y = 0
+  arm.x = 10
+  arm.y = 20
   arm.sprite = 3
   -- will be a list with keyEvents
   arm.keyEvents = {}
@@ -237,7 +237,12 @@ end
 function replayKeyEvents()
   for oldArm in all(body.oldArms) do
     keys = getButtonStateAtTimeIndex(oldArm.keyEvents, state.levelTime % oldArm.loopDuration)
-    moveArm(oldArm, keys)
+    if state.levelTime % oldArm.loopDuration == 0then
+      oldArm.x = 10
+      oldArm.y = 20
+    else
+      moveArm(oldArm, keys)
+    end
   end
 end
 
@@ -434,7 +439,11 @@ end
 
 function _draw()
     cls(12)
-    print(state.printMsg)
+  if state.currentState == state.stateGameOver then
+    cls()
+    print ("GAME OVER", 50, 50)
+  else
+    -- print(state.printMsg)
 
     monster:draw_head(body.x, body.y)
     for oldArm in all(body.oldArms) do
@@ -450,6 +459,8 @@ function _draw()
     pal()
 
     monster:flush()
+  end
+
 end
 
 
