@@ -5,8 +5,8 @@ __lua__
 local monster = {
 	BIG_SPLASH = {32, 34, 36, 34},
 	SMALL_SPLASH = {54, 55},
-	LEFT = {2, 3, 4, 3},
-	RIGHT = {18, 19, 20, 19},
+	LEFT = {18, 19, 20, 19},
+	RIGHT = {2, 3, 4, 3},
 	time = 0,
 	submerge = 0
 }
@@ -17,6 +17,7 @@ end
 
 function monster:draw_head(x, y)
 	clip()
+	pal()
 	
 	local frame = self.BIG_SPLASH[flr(5*self.time)%4 + 1]
 	spr(frame, x - 8, x - 8, 2, 2)
@@ -27,8 +28,10 @@ end
 
 function monster:draw_left_tentacle(x, y)
 	clip()
+	pal()
+	
 	local frame = self.SMALL_SPLASH[flr(2.5*self.time)%2 + 1]
-	spr(frame, x - 1, y - 4)
+	spr(frame, x + 1, y - 4)
 	
 	clip(0, 0, 128, y)
 	local frame = self.LEFT[flr(6*self.time)%4 + 1]
@@ -37,9 +40,15 @@ end
 
 function monster:draw_right_tentacle(x, y)
 	clip()
+	pal()
+	
+	-- if time % 1 < 0.5 then
+	-- 	pal(14, 8)
+	-- 	pal(2 , 8)
+	-- end
 	
 	local frame = self.SMALL_SPLASH[flr(2.5*self.time)%2 + 1]
-	spr(frame, x + 1, y - 4)
+	spr(frame, x - 1, y - 4)
 	
 	clip(0, 0, 128, y)
 	local frame = self.RIGHT[flr(6*self.time)%4 + 1]
@@ -51,8 +60,8 @@ function _draw()
 	
 	monster:tick()
 	monster:draw_head(64, 64)
-	monster:draw_left_tentacle(80, 64)
-	monster:draw_right_tentacle(40, 64)
+	monster:draw_left_tentacle(40, 64)
+	monster:draw_right_tentacle(80, 64)
 end
 
 __gfx__
