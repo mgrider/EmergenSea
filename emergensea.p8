@@ -34,8 +34,13 @@ function initArm()
   arm.sprite = 3
   -- will be a list with keyEvents
   arm.keyEvents = {}
-  add(arm.keyEvents, {time=0,keys=0})
-  arm.eventCounter = 0
+end
+
+function addEvent()
+  if #arm.keyEvents == 0 then
+    arm.startTime = levelTime
+  end
+  add(arm.keyEvents, {time=levelTime-arm.startTime,keys=currentKey})
 end
 
 local monster = {
@@ -96,7 +101,8 @@ end
 
 levelTime = 0
 currentLevel = 1
-currentKey = {}
+currentKey = 0
+lastKey = 0
 printMsg = ""
 
 function loadLevel(lvl)
@@ -129,9 +135,9 @@ function loadLevel(lvl)
 end
 
 function recordKeyEvents()
-  lastKey = arm.keyEvents[#arm.keyEvents].keys
   if currentKey != lastKey then
-    add(arm.keyEvents, {keys=currentKey, time=levelTime})
+    lastKey = currentKey
+    addEvent()
   end
 end
 
@@ -162,7 +168,7 @@ end
 
 function replayKeyEvents()
   for oldArm in all(body.oldArms) do
-    keys = getButtonStateAtTimeIndex(oldArm.keyEvents, levelTime % oldArm.eventCounter)
+    keys = getButtonStateAtTimeIndex(oldArm.keyEvents, levelTime % oldArm.loopDuration)
     moveArm(oldArm, keys)
   end
 end
@@ -300,10 +306,11 @@ function winLevel()
   else
     loadLevel(currentLevel)
   end
-  arm.eventCounter = levelTime
+  arm.loopDuration = levelTime - arm.startTime
   add(body.oldArms,arm)
   initArm()
-  levelTime = 0
+  currentKey = 0
+  lastKey = 0
 end
 
 function showGameOver()
