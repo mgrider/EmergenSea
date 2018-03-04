@@ -247,19 +247,14 @@ function winLevel()
   else
     loadLevel(currentLevel)
   end
+  add(body.oldArms,arm)
+  initArm()
+  levelTime = 0
 end
 
 function showGameOver()
   -- todo
   if checkCollide(body,goal) then Win() end
-end
-
-function Win()
- add(body.oldArms,arm)
- initArm()
- levelTime = 0
- body.x = 50
- body.y = 50
 end
 
 function animateBody()
@@ -288,7 +283,7 @@ function _draw()
     circfill(body.x, body.y, 8, 14)
     circfill(goal.x, goal.y, 4, 4)
     for oldArm in all(body.oldArms) do
-      circfill(body.x+oldArm.x, body.y+oldArm.y, 8, 14)
+      circfill(body.x+oldArm.x, body.y+oldArm.y, 4, 4)
       -- spr(oldArm.sprite, body.x+oldArm.x, body.y+oldArm.y)
     end
     circfill(body.x+arm.x, body.y+arm.y, 4, 14)
