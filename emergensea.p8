@@ -254,7 +254,6 @@ end
 
 function showGameOver()
   -- todo
-  if checkCollide(body,goal) then Win() end
 end
 
 function animateBody()
