@@ -30,15 +30,15 @@ arm = {}
 arm.x = -10
 arm.y = 0
 arm.sprite = 3
--- will be a list with key_events
-arm.key_events = {}
-add(arm.key_events, {time=0,keys=0})
-arm.event_counter = 0
+-- will be a list with keyEvents
+arm.keyEvents = {}
+add(arm.keyEvents, {time=0,keys=0})
+arm.eventCounter = 0
 
-level_time = 0
-current_level = 1
-current_key = {}
-print_msg = ""
+levelTime = 0
+currentLevel = 1
+currentKey = {}
+printMsg = ""
 
 function loadLevel(lvl)
   if (lvl ==  1) then
@@ -70,15 +70,15 @@ function loadLevel(lvl)
 end
 
 function recordKeyEvents()
-  last_key = arm.key_events[#arm.key_events].keys
-  if current_key != last_key then
-    add(arm.key_events, {keys=current_key, time=level_time})
-    print_msg = "K"..current_key..", T"..level_time..", "..last_key
+  lastKey = arm.keyEvents[#arm.keyEvents].keys
+  if currentKey != lastKey then
+    add(arm.keyEvents, {keys=currentKey, time=levelTime})
+    printMsg = "K"..currentKey..", T"..levelTime..", "..lastKey
   end
 end
 
 function moveCheck()
-  current_key = btn()
+  currentKey = btn()
   if btn(0) then
     moveArmX(arm, -constants.armSpeed)
   end
@@ -179,17 +179,17 @@ function goalCheck()
 end
 
 function winLevel()
-  current_level += 1
-  if (current_level > constants.maxLevel) then
+  currentLevel += 1
+  if (currentLevel > constants.maxLevel) then
     showGameOver()
   else
-    loadLevel(current_level)
+    loadLevel(currentLevel)
   end
 end
 
 function showGameOver()
   -- todo
-  print_msg = "YOU WIN!!!!"
+  printMsg = "YOU WIN!!!!"
 end
 
 function animateBody()
@@ -207,12 +207,12 @@ function _update()
   moveCheck()
   goalCheck()
   animateBody()
-  level_time += 1
+  levelTime += 1
 end
 
 function _draw()
     cls(12)
-    print(print_msg)
+    print(printMsg)
     circfill(body.x, body.y, 8, 14)
     circfill(goal.x, goal.y, 4, 4)
     circfill(body.x+arm.x, body.y+arm.y, 4, 14)
