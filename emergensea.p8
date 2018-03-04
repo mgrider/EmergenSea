@@ -419,7 +419,20 @@ end
 
 function _draw()
     cls(12)
-    print(state.printMsg)
+  if state.currentState == state.stateGameOver then
+    cls()
+    print ("")
+    print ("")
+    print ("")
+    print ("")
+    print ("")
+    print ("")
+    print ("")
+    print ("")
+    print ("")
+    print ("            GAME OVER")
+  else
+    -- print(state.printMsg)
 
     monster:draw_head(body.x, body.y)
     for oldArm in all(body.oldArms) do
@@ -435,6 +448,8 @@ function _draw()
     pal()
 
     monster:flush()
+  end
+
 end
 
 
