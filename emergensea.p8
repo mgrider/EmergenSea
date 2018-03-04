@@ -56,7 +56,7 @@ function addEvent()
   add(arm.keyEvents, {time=state.levelTime-arm.startTime,keys=state.currentKey})
 end
 
-function sort_queue(q)
+function sortQueue(q)
   for i = 1, #q do
     local j = i
     while j > 1 and q[j-1].value > q[j].value do
@@ -150,7 +150,7 @@ function monster:draw_target(x, y)
 end
 
 function monster:flush()
-  sort_queue(self.queue)
+  sortQueue(self.queue)
   for e in all(self.queue) do e.func() end
 
 	self.time += 1/32
