@@ -11,6 +11,19 @@ constants.minDistanceFromBody = 6
 constants.windowSize = 128
 constants.maxLevel = 5
 
+state = {}
+state.levelTime = 0
+state.currentLevel = 1
+state.currentKey = 0
+state.lastKey = 0
+state.betweenLevelCounter = 0
+state.holdoffInputs = false
+state.printMsg = ""
+state.statePlaying = "PLAYING"
+state.stateBetweenLevels = "BETWEEN_LEVELS"
+state.stateGameOver = "GAME_OVER"
+state.currentState = state.statePlaying
+
 goal = {}
 goal.x = 10
 goal.y = 50
@@ -92,10 +105,10 @@ function monster:draw_left_tentacle(x, y, active)
   self:push(y, function()
     clip()
     self:set_pal(active)
-    
+
     local frame = self.SMALL_SPLASH[flr(2.5*self.time)%2 + 1]
     spr(frame, x + 1, y - 4)
-    
+
     clip(0, 0, 128, y)
     local frame = self.LEFT[flr(6*self.time)%4 + 1]
     spr(frame, x, y - 8 + 8*self.submerge)
@@ -106,10 +119,10 @@ function monster:draw_right_tentacle(x, y, active)
   self:push(y, function()
     clip()
     self:set_pal(active)
-    
+
     local frame = self.SMALL_SPLASH[flr(2.5*self.time)%2 + 1]
     spr(frame, x - 1, y - 4)
-    
+
     clip(0, 0, 128, y)
     local frame = self.RIGHT[flr(6*self.time)%4 + 1]
     spr(frame, x, y - 8 + 8*self.submerge)
@@ -120,10 +133,10 @@ function monster:draw_target(x, y)
   self:push(y, function()
     clip()
     pal()
-    
+
     local frame = self.BIG_SPLASH[flr(5*self.time)%4 + 1]
     spr(frame, x - 8, y - 8, 2, 2)
-    
+
     spr(40, x - 8, y - 11, 2, 2)
   end)
 end
@@ -131,18 +144,10 @@ end
 function monster:flush()
   sort_queue(self.queue)
   for e in all(self.queue) do e.func() end
-  
+
 	self.time += 1/32
   self.queue = {}
 end
-
-state = {}
-state.levelTime = 0
-state.currentLevel = 1
-state.currentKey = 0
-state.lastKey = 0
-state.holdoffInputs = false
-state.printMsg = ""
 
 function loadLevel(lvl)
   if (lvl ==  1) then
@@ -213,13 +218,11 @@ function replayKeyEvents()
   end
 end
 
-
 function interpretBtn(keys, n)
   keysShifted = shr(keys, n)
   keysMasked = band(keysShifted, 0x01)
   return keysMasked == 0x1
 end
-
 
 function moveCheck()
   state.currentKey = btn()
@@ -344,15 +347,20 @@ function winLevel()
   if (state.currentLevel > constants.maxLevel) then
     showGameOver()
   else
-    loadLevel(state.currentLevel)
+    state.betweenLevelCounter = 0
+    arm.loopDuration = state.levelTime - arm.startTime
+    add(body.oldArms,arm)
+    initArm()
+    state.holdoffInputs = true
+    setCurrentState(state.stateBetweenLevels)
+    animateHead(function()
+      loadLevel(state.currentLevel)
+    end)
   end
-  arm.loopDuration = state.levelTime - arm.startTime
-  add(body.oldArms,arm)
-  initArm()
-  state.holdoffInputs = true
 end
 
 function showGameOver()
+  setCurrentState(state.stateGameOver)
   -- todo
 end
 
@@ -363,17 +371,42 @@ function animateBody()
   end
 end
 
+function setCurrentState(newState)
+  state.currentState = newState
+end
+
+function animateHead(betweenCallback)
+  for i=0, 1, 0.1 do
+    monster.submerge = i
+    _draw()
+    flip()
+  end
+  betweenCallback()
+  for i=1, 0, -0.1 do
+    monster.submerge = i
+    _draw()
+    flip()
+  end
+  setCurrentState(state.statePlaying)
+end
+
 function _init()
   initArm()
-  loadLevel(1)
+--  loadLevel(1)
 end
 
 function _update()
-  moveCheck()
-  goalCheck()
-  animateBody()
-  replayKeyEvents()
-  state.levelTime += 1
+  if state.currentState == state.statePlaying then
+    moveCheck()
+    goalCheck()
+    animateBody()
+    replayKeyEvents()
+    state.levelTime += 1
+  elseif state.currentState == state.stateBetweenLevels then
+    -- anything?
+  elseif state.currentState == state.stateGameOver then
+    -- todo
+  end
 end
 
 function _draw()
@@ -386,13 +419,13 @@ function _draw()
       -- spr(oldArm.sprite, body.x+oldArm.x, body.y+oldArm.y)
     end
     monster:draw_right_tentacle(body.x+arm.x, body.y+arm.y, true)
-    
+
     monster:draw_target(goal.x, goal.y)
-    
+
     -- Reset clipping and palette
     clip()
     pal()
-    
+
     monster:flush()
 end
 
