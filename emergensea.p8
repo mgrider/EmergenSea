@@ -12,7 +12,7 @@ constants.windowSize = 128
 constants.maxLevel = 5
 
 goal = {}
-goal.x = 10
+goal.x = 20
 goal.y = 50
 goal.w = 8
 goal.h = 8
@@ -20,7 +20,7 @@ goal.sprite = 1
 
 body = {}
 body.oldArms = {}
-body.x = 50
+body.x = 60
 body.y = 50
 body.w = 8
 body.h = 8
@@ -150,33 +150,35 @@ state.currentLevel = 1
 state.currentKey = 0
 state.lastKey = 0
 state.holdoffInputs = false
+state.freezeArms = false
 state.printMsg = ""
+
 
 function loadLevel(lvl)
   if (lvl ==  1) then
-    body.x = 96
+    body.x = 106
     body.y = 64
-    goal.x = 10
+    goal.x = 20
     goal.y = 64
   elseif (lvl == 2) then
-    body.x = 96
+    body.x = 106
     body.y = 64
-    goal.x = 10
-    goal.y = 10
+    goal.x = 20
+    goal.y = 20
   elseif (lvl == 3) then
     body.x = 96
     body.y = 64
-    goal.x = 110
-    goal.y = 110
+    goal.x = 100
+    goal.y = 100
   elseif (lvl == 4) then
     body.x = 96
     body.y = 64
     goal.x = 10
-    goal.y = 110
+    goal.y = 100
   elseif (lvl == 5) then
     body.x = 96
     body.y = 64
-    goal.x = 110
+    goal.x = 100
     goal.y = 10
   end
 end
