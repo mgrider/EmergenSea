@@ -103,6 +103,7 @@ levelTime = 0
 currentLevel = 1
 currentKey = 0
 lastKey = 0
+ignoreAllInputsForever = false
 printMsg = ""
 
 function loadLevel(lvl)
@@ -136,6 +137,7 @@ end
 
 function recordKeyEvents()
   if currentKey != lastKey then
+    ignoreAllInputsForever=false
     lastKey = currentKey
     addEvent()
   end
@@ -309,8 +311,7 @@ function winLevel()
   arm.loopDuration = levelTime - arm.startTime
   add(body.oldArms,arm)
   initArm()
-  currentKey = 0
-  lastKey = 0
+  ignoreAllInputsForever = true
 end
 
 function showGameOver()
