@@ -9,7 +9,7 @@ constants.bodySpeed = 3
 constants.maxDistanceFromBody = 24
 constants.minDistanceFromBody = 6
 constants.windowSize = 128
-constants.maxLevel = 5
+constants.maxLevel = 8
 
 state = {}
 state.levelTime = 0
@@ -164,25 +164,40 @@ function loadLevel(lvl)
     goal.x = 20
     goal.y = 64
   elseif (lvl == 2) then
+    body.x = 20
+    body.y = 64
+    goal.x = 108
+    goal.y = 64
+  elseif (lvl == 3) then
     body.x = 106
     body.y = 64
     goal.x = 20
     goal.y = 20
-  elseif (lvl == 3) then
-    body.x = 96
+  elseif (lvl == 4) then
+    body.x = 28
     body.y = 64
     goal.x = 100
-    goal.y = 100
-  elseif (lvl == 4) then
-    body.x = 96
-    body.y = 64
-    goal.x = 20
     goal.y = 100
   elseif (lvl == 5) then
     body.x = 96
     body.y = 64
+    goal.x = 20
+    goal.y = 100
+  elseif (lvl == 6) then
+    body.x = 96
+    body.y = 64
     goal.x = 90
-    goal.y = 25
+    goal.y = 28
+  elseif (lvl == 7) then
+    body.x = 28
+    body.y = 96
+    goal.x = 28
+    goal.y = 64
+  elseif (lvl == 8) then
+    body.x = 96
+    body.y = 96
+    goal.x = 28
+    goal.y = 28
   end
 end
 
