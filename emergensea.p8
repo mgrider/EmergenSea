@@ -173,35 +173,27 @@ function moveBody()
   if (totalX > constants.minDistanceFromBody) then
     body.x += constants.bodySpeed
     moveArmX(arm, -constants.bodySpeed)
-    if #body.oldArms > 0 then
-      for oldArm in all (body.oldArms) do
-        moveArmX(oldArm, -constants.bodySpeed)
-      end
+    for oldArm in all (body.oldArms) do
+      moveArmX(oldArm, -constants.bodySpeed)
     end
   elseif (totalX < -constants.minDistanceFromBody) then
     body.x -= constants.bodySpeed
     moveArmX(arm, constants.bodySpeed)
-    if #body.oldArms > 0 then
-      for oldArm in all (body.oldArms) do
-        moveArmX(oldArm, constants.bodySpeed)
-      end
+    for oldArm in all (body.oldArms) do
+      moveArmX(oldArm, constants.bodySpeed)
     end
   end
   if (totalY > constants.minDistanceFromBody) then
     body.y += constants.bodySpeed
     moveArmY(arm, -constants.bodySpeed)
-    if #body.oldArms > 0 then
-      for oldArm in all (body.oldArms) do
-        moveArmY(oldArm, -constants.bodySpeed)
-      end
+    for oldArm in all (body.oldArms) do
+      moveArmY(oldArm, -constants.bodySpeed)
     end
   elseif (totalY < -constants.minDistanceFromBody) then
     body.y -= constants.bodySpeed
     moveArmY(arm, constants.bodySpeed)
-    if #body.oldArms > 0 then
-      for oldArm in all (body.oldArms) do
-        moveArmY(oldArm, constants.bodySpeed)
-      end
+    for oldArm in all (body.oldArms) do
+      moveArmY(oldArm, constants.bodySpeed)
     end
   end
   -- check for OOB
