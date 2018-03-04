@@ -230,7 +230,7 @@ function moveBody()
     totalX += oldArm.x
     totalY += oldArm.y
   end
-
+  -- actually move the body (& arms)
   if (totalX > constants.minDistanceFromBody) then
     body.x += constants.bodySpeed
     moveArmX(arm, -constants.bodySpeed)
