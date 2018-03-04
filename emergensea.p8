@@ -222,7 +222,12 @@ end
 function replayKeyEvents()
   for oldArm in all(body.oldArms) do
     keys = getButtonStateAtTimeIndex(oldArm.keyEvents, state.levelTime % oldArm.loopDuration)
-    moveArm(oldArm, keys)
+    if state.levelTime % oldArm.loopDuration == 0then
+      oldArm.x = 10
+      oldArm.y = 20
+    else
+      moveArm(oldArm, keys)
+    end
   end
 end
 
