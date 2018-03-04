@@ -4,8 +4,8 @@ __lua__
 
 -- add globals here
 constants = {}
-constants.armSpeed = 3
-constants.bodySpeed = 2
+constants.armSpeed = 4
+constants.bodySpeed = 3
 constants.maxDistanceFromBody = 24
 constants.minDistanceFromBody = 6
 constants.windowSize = 128
@@ -176,13 +176,13 @@ function loadLevel(lvl)
   elseif (lvl == 4) then
     body.x = 96
     body.y = 64
-    goal.x = 10
+    goal.x = 20
     goal.y = 100
   elseif (lvl == 5) then
     body.x = 96
     body.y = 64
-    goal.x = 100
-    goal.y = 10
+    goal.x = 90
+    goal.y = 25
   end
 end
 
@@ -400,7 +400,7 @@ end
 
 function _init()
   initArm()
---  loadLevel(1)
+  loadLevel(1)
 end
 
 function _update()
