@@ -19,21 +19,24 @@ goal.h = 8
 goal.sprite = 1
 
 body = {}
+body.oldArms = {}
 body.x = 50
 body.y = 50
 body.w = 8
 body.h = 8
 body.sprite = 1
 -- arm is current arm
--- todo: add array of previous arms
-arm = {}
-arm.x = -10
-arm.y = 0
-arm.sprite = 3
--- will be a list with keyEvents
-arm.keyEvents = {}
-add(arm.keyEvents, {time=0,keys=0})
-arm.eventCounter = 0
+function initArm()
+  -- todo: add array of previous arms
+  arm = {}
+  arm.x = -10
+  arm.y = 0
+  arm.sprite = 3
+  -- will be a list with keyEvents
+  arm.keyEvents = {}
+  add(arm.keyEvents, {time=0,keys=0})
+  arm.eventCounter = 0
+end
 
 local monster = {
 	BIG_SPLASH = {32, 34, 36, 34},
@@ -129,25 +132,64 @@ function recordKeyEvents()
   lastKey = arm.keyEvents[#arm.keyEvents].keys
   if currentKey != lastKey then
     add(arm.keyEvents, {keys=currentKey, time=levelTime})
-    printMsg = "K"..currentKey..", T"..levelTime..", "..lastKey
   end
 end
 
-function moveCheck()
-  currentKey = btn()
-  if btn(0) then
+function moveArm(arm, buttons)
+  if interpretBtn(buttons, 0) then
     moveArmX(arm, -constants.armSpeed)
   end
-  if btn(1) then
+  if interpretBtn(buttons, 1) then
     moveArmX(arm, constants.armSpeed)
   end
-  if btn(2) then
+  if interpretBtn(buttons, 2) then
     moveArmY(arm, -constants.armSpeed)
   end
-  if btn(3) then
+  if interpretBtn(buttons, 3) then
     moveArmY(arm, constants.armSpeed)
   end
-  if btn(5) then
+end
+
+function getButtonStateAtTimeIndex(events, timeIndex)
+  eventOfInterest = {}
+  for event in all(events) do
+    if timeIndex > event.time then
+      eventOfInterest = event
+    end
+  end
+  return eventOfInterest.keys
+end
+
+function replayKeyEvents()
+  for oldArm in all(body.oldArms) do
+    keys = getButtonStateAtTimeIndex(oldArm.keyEvents, levelTime)
+    moveArm(oldArm, keys)
+  end
+end
+
+
+function interpretBtn(keys, n)
+  keysShifted = shr(keys, n)
+  keysMasked = band(keysShifted, 0x01)
+  return keysMasked == 0x1
+end
+
+
+function moveCheck()
+  currentKey = btn()
+  if interpretBtn(currentKey, 0) then
+    moveArmX(arm, -constants.armSpeed)
+  end
+  if interpretBtn(currentKey, 1) then
+    moveArmX(arm, constants.armSpeed)
+  end
+  if interpretBtn(currentKey, 2) then
+    moveArmY(arm, -constants.armSpeed)
+  end
+  if interpretBtn(currentKey, 3) then
+    moveArmY(arm, constants.armSpeed)
+  end
+  if interpretBtn(currentKey, 5) then
     moveBody()
   end
   recordKeyEvents()
@@ -187,16 +229,28 @@ function moveBody()
   if (totalX > constants.minDistanceFromBody) then
     body.x += constants.bodySpeed
     moveArmX(arm, -constants.bodySpeed)
+    for oldArm in all (body.oldArms) do
+      moveArmX(oldArm, -constants.bodySpeed)
+    end
   elseif (totalX < -constants.minDistanceFromBody) then
     body.x -= constants.bodySpeed
     moveArmX(arm, constants.bodySpeed)
+    for oldArm in all (body.oldArms) do
+      moveArmX(oldArm, constants.bodySpeed)
+    end
   end
   if (totalY > constants.minDistanceFromBody) then
     body.y += constants.bodySpeed
     moveArmY(arm, -constants.bodySpeed)
+    for oldArm in all (body.oldArms) do
+      moveArmY(oldArm, -constants.bodySpeed)
+    end
   elseif (totalY < -constants.minDistanceFromBody) then
     body.y -= constants.bodySpeed
     moveArmY(arm, constants.bodySpeed)
+    for oldArm in all (body.oldArms) do
+      moveArmY(oldArm, constants.bodySpeed)
+    end
   end
   -- check for OOB
   if (body.x > (constants.windowSize - constants.minDistanceFromBody)) then
@@ -241,11 +295,13 @@ function winLevel()
   else
     loadLevel(currentLevel)
   end
+  add(body.oldArms,arm)
+  initArm()
+  levelTime = 0
 end
 
 function showGameOver()
   -- todo
-  printMsg = "YOU WIN!!!!"
 end
 
 function animateBody()
@@ -256,6 +312,7 @@ function animateBody()
 end
 
 function _init()
+  initArm()
   loadLevel(1)
 end
 
@@ -263,6 +320,7 @@ function _update()
   moveCheck()
   goalCheck()
   animateBody()
+  replayKeyEvents()
   levelTime += 1
 end
 
@@ -275,6 +333,10 @@ function _draw()
     
     circfill(goal.x, goal.y, 4, 4)
     monster:draw_head(body.x, body.y)
+    for oldArm in all(body.oldArms) do
+      circfill(body.x+oldArm.x, body.y+oldArm.y, 4, 14)
+      -- spr(oldArm.sprite, body.x+oldArm.x, body.y+oldArm.y)
+    end
     monster:draw_right_tentacle(body.x+arm.x, body.y+arm.y, true)
     
     -- Reset clipping and palette
@@ -283,6 +345,7 @@ function _draw()
     
     monster:tick()
 end
+
 
 __gfx__
 00005555555500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
