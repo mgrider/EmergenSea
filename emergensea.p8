@@ -80,28 +80,28 @@ function recordKeyEvents()
 end
 
 function moveArm(arm, buttons)
-  if interpret_btn(buttons, 0) then
+  if interpretBtn(buttons, 0) then
     moveArmX(arm, -constants.armSpeed)
   end
-  if interpret_btn(buttons, 1) then
+  if interpretBtn(buttons, 1) then
     moveArmX(arm, constants.armSpeed)
   end
-  if interpret_btn(buttons, 2) then
+  if interpretBtn(buttons, 2) then
     moveArmY(arm, -constants.armSpeed)
   end
-  if interpret_btn(buttons, 3) then
+  if interpretBtn(buttons, 3) then
     moveArmY(arm, constants.armSpeed)
   end
 end
 
-function getButtonStateAtTimeIndex(events, time_index)
-  event_of_interest = {}
+function getButtonStateAtTimeIndex(events, timeIndex)
+  eventOfInterest = {}
   for event in all(events) do
-    if time_index > event.time then
-      event_of_interest = event
+    if timeIndex > event.time then
+      eventOfInterest = event
     end
   end
-  return event_of_interest.keys
+  return eventOfInterest.keys
 end
 
 function replayKeyEvents()
@@ -112,28 +112,28 @@ function replayKeyEvents()
 end
 
 
-function interpret_btn(keys, n)
-  keys_shifted = shr(keys, n)
-  keys_masked = band(keys_shifted, 0x01)
-  return keys_masked == 0x1
+function interpretBtn(keys, n)
+  keysShifted = shr(keys, n)
+  keysMasked = band(keysShifted, 0x01)
+  return keysMasked == 0x1
 end
 
 
 function moveCheck()
-  current_key = btn()
-  if interpret_btn(current_key, 0) then
+  currentKey = btn()
+  if interpretBtn(currentKey, 0) then
     moveArmX(arm, -constants.armSpeed)
   end
-  if interpret_btn(current_key, 1) then
+  if interpretBtn(currentKey, 1) then
     moveArmX(arm, constants.armSpeed)
   end
-  if interpret_btn(current_key, 2) then
+  if interpretBtn(currentKey, 2) then
     moveArmY(arm, -constants.armSpeed)
   end
-  if interpret_btn(current_key, 3) then
+  if interpretBtn(currentKey, 3) then
     moveArmY(arm, constants.armSpeed)
   end
-  if interpret_btn(current_key, 5) then
+  if interpretBtn(currentKey, 5) then
     moveBody()
   end
   recordKeyEvents()
