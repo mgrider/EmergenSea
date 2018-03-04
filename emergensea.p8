@@ -38,9 +38,19 @@ end
 
 function addEvent()
   if #arm.keyEvents == 0 then
-    arm.startTime = levelTime
+    arm.startTime = state.levelTime
   end
-  add(arm.keyEvents, {time=levelTime-arm.startTime,keys=currentKey})
+  add(arm.keyEvents, {time=state.levelTime-arm.startTime,keys=state.currentKey})
+end
+
+function sort_queue(q)
+  for i = 1, #q do
+    local j = i
+    while j > 1 and q[j-1].value > q[j].value do
+      q[j], q[j-1] = q[j-1], q[j]
+      j = j - 1
+    end
+  end
 end
 
 local monster = {
@@ -49,22 +59,25 @@ local monster = {
 	LEFT = {18, 19, 20, 19},
 	RIGHT = {2, 3, 4, 3},
 	time = 0,
-	submerge = 0
+	submerge = 0,
+  queue = {},
 }
 
-function monster:tick()
-	self.time += 1/32
+function monster:push(value, func)
+  add(self.queue, {value = value, func = func})
 end
 
 function monster:draw_head(x, y)
-	clip()
-	pal()
+  self:push(y, function()
+    clip()
+    pal()
 
-	local frame = self.BIG_SPLASH[flr(5*self.time)%4 + 1]
-	spr(frame, x - 8, y - 8, 2, 2)
+    local frame = self.BIG_SPLASH[flr(5*self.time)%4 + 1]
+    spr(frame, x - 8, y - 8, 2, 2)
 
-	clip(0, 0, 128, y + 3)
-	spr(0, x - 8, y - 13 + 16*self.submerge, 2, 2)
+    clip(0, 0, 128, y + 3)
+    spr(0, x - 8, y - 13 + 16*self.submerge, 2, 2)
+  end)
 end
 
 function monster:set_pal(active)
@@ -76,35 +89,60 @@ function monster:set_pal(active)
 end
 
 function monster:draw_left_tentacle(x, y, active)
-	clip()
-	self:set_pal(active)
-
-	local frame = self.SMALL_SPLASH[flr(2.5*self.time)%2 + 1]
-	spr(frame, x + 1, y - 4)
-
-	clip(0, 0, 128, y)
-	local frame = self.LEFT[flr(6*self.time)%4 + 1]
-	spr(frame, x, y - 8 + 8*self.submerge)
+  self:push(y, function()
+    clip()
+    self:set_pal(active)
+    
+    local frame = self.SMALL_SPLASH[flr(2.5*self.time)%2 + 1]
+    spr(frame, x + 1, y - 4)
+    
+    clip(0, 0, 128, y)
+    local frame = self.LEFT[flr(6*self.time)%4 + 1]
+    spr(frame, x, y - 8 + 8*self.submerge)
+  end)
 end
 
 function monster:draw_right_tentacle(x, y, active)
-	clip()
-	self:set_pal(active)
-
-	local frame = self.SMALL_SPLASH[flr(2.5*self.time)%2 + 1]
-	spr(frame, x - 1, y - 4)
-
-	clip(0, 0, 128, y)
-	local frame = self.RIGHT[flr(6*self.time)%4 + 1]
-	spr(frame, x, y - 8 + 8*self.submerge)
+  self:push(y, function()
+    clip()
+    self:set_pal(active)
+    
+    local frame = self.SMALL_SPLASH[flr(2.5*self.time)%2 + 1]
+    spr(frame, x - 1, y - 4)
+    
+    clip(0, 0, 128, y)
+    local frame = self.RIGHT[flr(6*self.time)%4 + 1]
+    spr(frame, x, y - 8 + 8*self.submerge)
+  end)
 end
 
-levelTime = 0
-currentLevel = 1
-currentKey = 0
-lastKey = 0
-ignoreAllInputsForever = false
-printMsg = ""
+function monster:draw_target(x, y)
+  self:push(y, function()
+    clip()
+    pal()
+    
+    local frame = self.BIG_SPLASH[flr(5*self.time)%4 + 1]
+    spr(frame, x - 8, y - 8, 2, 2)
+    
+    spr(40, x - 8, y - 11, 2, 2)
+  end)
+end
+
+function monster:flush()
+  sort_queue(self.queue)
+  for e in all(self.queue) do e.func() end
+  
+	self.time += 1/32
+  self.queue = {}
+end
+
+state = {}
+state.levelTime = 0
+state.currentLevel = 1
+state.currentKey = 0
+state.lastKey = 0
+state.holdoffInputs = false
+state.printMsg = ""
 
 function loadLevel(lvl)
   if (lvl ==  1) then
@@ -136,9 +174,9 @@ function loadLevel(lvl)
 end
 
 function recordKeyEvents()
-  if currentKey != lastKey then
-    ignoreAllInputsForever=false
-    lastKey = currentKey
+  if state.currentKey != state.lastKey then
+    state.holdoffInputs=false
+    state.lastKey = state.currentKey
     addEvent()
   end
 end
@@ -170,7 +208,7 @@ end
 
 function replayKeyEvents()
   for oldArm in all(body.oldArms) do
-    keys = getButtonStateAtTimeIndex(oldArm.keyEvents, levelTime % oldArm.loopDuration)
+    keys = getButtonStateAtTimeIndex(oldArm.keyEvents, state.levelTime % oldArm.loopDuration)
     moveArm(oldArm, keys)
   end
 end
@@ -184,20 +222,20 @@ end
 
 
 function moveCheck()
-  currentKey = btn()
-  if interpretBtn(currentKey, 0) then
+  state.currentKey = btn()
+  if interpretBtn(state.currentKey, 0) then
     moveArmX(arm, -constants.armSpeed)
   end
-  if interpretBtn(currentKey, 1) then
+  if interpretBtn(state.currentKey, 1) then
     moveArmX(arm, constants.armSpeed)
   end
-  if interpretBtn(currentKey, 2) then
+  if interpretBtn(state.currentKey, 2) then
     moveArmY(arm, -constants.armSpeed)
   end
-  if interpretBtn(currentKey, 3) then
+  if interpretBtn(state.currentKey, 3) then
     moveArmY(arm, constants.armSpeed)
   end
-  if interpretBtn(currentKey, 5) then
+  if interpretBtn(state.currentKey, 5) then
     moveBody()
   end
   recordKeyEvents()
@@ -302,16 +340,16 @@ function goalCheck()
 end
 
 function winLevel()
-  currentLevel += 1
-  if (currentLevel > constants.maxLevel) then
+  state.currentLevel += 1
+  if (state.currentLevel > constants.maxLevel) then
     showGameOver()
   else
-    loadLevel(currentLevel)
+    loadLevel(state.currentLevel)
   end
-  arm.loopDuration = levelTime - arm.startTime
+  arm.loopDuration = state.levelTime - arm.startTime
   add(body.oldArms,arm)
   initArm()
-  ignoreAllInputsForever = true
+  state.holdoffInputs = true
 end
 
 function showGameOver()
@@ -335,29 +373,27 @@ function _update()
   goalCheck()
   animateBody()
   replayKeyEvents()
-  levelTime += 1
+  state.levelTime += 1
 end
 
 function _draw()
     cls(12)
-    print(printMsg)
+    print(state.printMsg)
 
-    -- circfill(body.x, body.y, 8, 14)
-    -- circfill(body.x+arm.x, body.y+arm.y, 4, 14)
-
-    circfill(goal.x, goal.y, 4, 4)
     monster:draw_head(body.x, body.y)
     for oldArm in all(body.oldArms) do
       monster:draw_left_tentacle(body.x+oldArm.x, body.y+oldArm.y, false)
       -- spr(oldArm.sprite, body.x+oldArm.x, body.y+oldArm.y)
     end
     monster:draw_right_tentacle(body.x+arm.x, body.y+arm.y, true)
-
+    
+    monster:draw_target(goal.x, goal.y)
+    
     -- Reset clipping and palette
     clip()
     pal()
-
-    monster:tick()
+    
+    monster:flush()
 end
 
 
@@ -378,17 +414,17 @@ __gfx__
 002ee8ee8eeee20000002ee000002ee002002ee00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0002eeeeeee2200000002ee000002ee000002ee00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000022222220000000002ee000002ee000002ee00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000007777770000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000077777700000000771111117700000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000777777000000007711111177000007110000001170000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00077111111770000071100000011700071000000000017000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00711000000117000710000000000170710000000000001700000000000000000000000000000000000000000000000000000000000000000000000000000000
-00710000000017000710000000000170710000000000001700000000000000000000000000000000000000000000000000000000000000000000000000000000
-00711000000117000710000000000170710000000000001700077000007777000000000000000000000000000000000000000000000000000000000000000000
-00077111111770000071100000011700071000000000017000711700071111700000000000000000000000000000000000000000000000000000000000000000
-00000777777000000007711111177000007110000001170007100170710000170000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000077777700000000771111117700000711700071111700000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000005500000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000005505500000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000005500000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000007777770000000000000000000000000000000044000000000000000000000000000000000000000000000000000
+000000000000000000000777777000000007711111177000000000000000000000006670000ff000000000000000000000000000000000000000000000000000
+00000777777000000007711111177000007110000001170000000000000000000000667000f88f00000000000000000000000000000000000000000000000000
+00077111111770000071100000011700071000000000017000000000000000000000667000011000000000000000000000000000000000000000000000000000
+00711000000117000710000000000170710000000000001700000000000000004444444444444444000000000000000000000000000000000000000000000000
+00710000000017000710000000000170710000000000001700000000000000004499999999999944000000000000000000000000000000000000000000000000
+00711000000117000710000000000170710000000000001700077000007777000444444444444440000000000000000000000000000000000000000000000000
+00077111111770000071100000011700071000000000017000711700071111700449999999999440000000000000000000000000000000000000000000000000
+00000777777000000007711111177000007110000001170007100170710000170044444444444400000000000000000000000000000000000000000000000000
+00000000000000000000077777700000000771111117700000711700071111700004444444444000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000007777770000000077000007777000000000000000000000000000000000000000000000000000000000000000000
