@@ -334,7 +334,7 @@ function _draw()
     circfill(goal.x, goal.y, 4, 4)
     monster:draw_head(body.x, body.y)
     for oldArm in all(body.oldArms) do
-      circfill(body.x+oldArm.x, body.y+oldArm.y, 4, 14)
+      monster:draw_left_tentacle(body.x+oldArm.x, body.y+oldArm.y, false)
       -- spr(oldArm.sprite, body.x+oldArm.x, body.y+oldArm.y)
     end
     monster:draw_right_tentacle(body.x+arm.x, body.y+arm.y, true)
