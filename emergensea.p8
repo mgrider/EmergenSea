@@ -226,6 +226,11 @@ end
 function moveBody()
   local totalX = arm.x
   local totalY = arm.y
+  for oldArm in all (body.oldArms) do
+    totalX += oldArm.x
+    totalY += oldArm.y
+  end
+
   if (totalX > constants.minDistanceFromBody) then
     body.x += constants.bodySpeed
     moveArmX(arm, -constants.bodySpeed)
