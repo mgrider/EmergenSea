@@ -54,10 +54,10 @@ end
 function monster:draw_head(x, y)
 	clip()
 	pal()
-	
+
 	local frame = self.BIG_SPLASH[flr(5*self.time)%4 + 1]
 	spr(frame, x - 8, y - 8, 2, 2)
-	
+
 	clip(0, 0, 128, y + 3)
 	spr(0, x - 8, y - 13 + 16*self.submerge, 2, 2)
 end
@@ -73,10 +73,10 @@ end
 function monster:draw_left_tentacle(x, y, active)
 	clip()
 	self:set_pal(active)
-	
+
 	local frame = self.SMALL_SPLASH[flr(2.5*self.time)%2 + 1]
 	spr(frame, x + 1, y - 4)
-	
+
 	clip(0, 0, 128, y)
 	local frame = self.LEFT[flr(6*self.time)%4 + 1]
 	spr(frame, x, y - 8 + 8*self.submerge)
@@ -85,10 +85,10 @@ end
 function monster:draw_right_tentacle(x, y, active)
 	clip()
 	self:set_pal(active)
-	
+
 	local frame = self.SMALL_SPLASH[flr(2.5*self.time)%2 + 1]
 	spr(frame, x - 1, y - 4)
-	
+
 	clip(0, 0, 128, y)
 	local frame = self.RIGHT[flr(6*self.time)%4 + 1]
 	spr(frame, x, y - 8 + 8*self.submerge)
@@ -162,7 +162,7 @@ end
 
 function replayKeyEvents()
   for oldArm in all(body.oldArms) do
-    keys = getButtonStateAtTimeIndex(oldArm.keyEvents, levelTime)
+    keys = getButtonStateAtTimeIndex(oldArm.keyEvents, levelTime % oldArm.eventCounter)
     moveArm(oldArm, keys)
   end
 end
@@ -300,6 +300,7 @@ function winLevel()
   else
     loadLevel(currentLevel)
   end
+  arm.eventCounter = levelTime
   add(body.oldArms,arm)
   initArm()
   levelTime = 0
@@ -332,10 +333,10 @@ end
 function _draw()
     cls(12)
     print(printMsg)
-    
+
     -- circfill(body.x, body.y, 8, 14)
     -- circfill(body.x+arm.x, body.y+arm.y, 4, 14)
-    
+
     circfill(goal.x, goal.y, 4, 4)
     monster:draw_head(body.x, body.y)
     for oldArm in all(body.oldArms) do
@@ -343,11 +344,11 @@ function _draw()
       -- spr(oldArm.sprite, body.x+oldArm.x, body.y+oldArm.y)
     end
     monster:draw_right_tentacle(body.x+arm.x, body.y+arm.y, true)
-    
+
     -- Reset clipping and palette
     clip()
     pal()
-    
+
     monster:tick()
 end
 
