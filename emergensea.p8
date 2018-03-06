@@ -2,6 +2,9 @@ pico-8 cartridge // http://www.pico-8.com
 version 16
 __lua__
 
+-- emergent sea
+-- by @slembcke @livingtech @benjotron @phancx
+
 -- add globals here
 constants = {}
 constants.armSpeed = 4
@@ -524,4 +527,3 @@ __music__
 00 06020a46
 00 06020b46
 02 06020c46
-
